@@ -64,7 +64,7 @@ function HomePage() {
       if (!String(data.get(field) ?? "").trim()) nextErrors[field] = "This field is required.";
     }
     const phone = String(data.get("phone") ?? "").trim();
-    if (phone && !/^[+0-9()\-\s]{7,20}$/.test(phone)) nextErrors.phone = "Enter a valid phone number.";
+    if (phone && !/^[+0-9()\-\s]{7,20}$/.test(phone)) nextErrors["phone"] = "Enter a valid phone number.";
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length === 0) {
       setSubmitted(true);
@@ -133,11 +133,11 @@ function HomePage() {
           <div><p className="text-sm font-bold uppercase text-primary">Apply for digital transformation</p><h2 className="mt-5 text-balance text-5xl font-extrabold leading-tight md:text-6xl">Is your business ready for its next version?</h2><p className="mt-6 max-w-md leading-7 text-muted-foreground">Tell us where you are and what you need. We’ll use your answers to understand whether the ₦49,999 campaign offer is the right starting point.</p><div className="mt-10 space-y-4 text-sm text-muted-foreground">{["Professional website built around your business", "A clear route to automation and growth", "Reserved for the first 100 qualifying requests"].map(item => <p key={item} className="flex gap-3"><Check className="shrink-0 text-primary" size={18} />{item}</p>)}</div></div>
           <div className="rounded-lg border border-border bg-background p-6 md:p-10">
             {submitted ? <div className="grid min-h-96 place-items-center text-center"><div><div className="mx-auto grid size-14 place-items-center rounded-full bg-primary text-primary-foreground"><Check /></div><h3 className="mt-6 text-3xl font-extrabold">Application captured.</h3><p className="mx-auto mt-3 max-w-md leading-7 text-muted-foreground">This preview does not send or save your details yet. The application journey is ready to connect when secure storage is enabled.</p><Button className="mt-7" variant="outline" onClick={() => setSubmitted(false)}>Submit another</Button></div></div> : <form onSubmit={submitApplication} noValidate className="grid gap-5 md:grid-cols-2">
-              <Field label="Business name" name="business" error={errors.business} maxLength={100} />
-              <Field label="Owner / contact name" name="name" error={errors.name} maxLength={100} />
-              <Field label="WhatsApp / phone" name="phone" type="tel" error={errors.phone} maxLength={20} />
-              <label className="grid gap-2 text-sm font-bold">Business category<select name="category" defaultValue="" className="h-12 rounded-md border border-input bg-card px-3 text-foreground outline-none focus:border-primary"><option value="" disabled>Select a category</option><option>Retail</option><option>Food & hospitality</option><option>Professional services</option><option>Beauty & wellness</option><option>Education</option><option>Real estate</option><option>Other</option></select>{errors.category && <span className="text-xs text-destructive">{errors.category}</span>}</label>
-              <label className="grid gap-2 text-sm font-bold md:col-span-2">What digital challenge should we help solve?<textarea name="challenge" maxLength={1000} rows={5} className="rounded-md border border-input bg-card p-3 text-foreground outline-none focus:border-primary" placeholder="Tell us what is not working today…" />{errors.challenge && <span className="text-xs text-destructive">{errors.challenge}</span>}</label>
+              <Field label="Business name" name="business" error={errors["business"]} maxLength={100} />
+              <Field label="Owner / contact name" name="name" error={errors["name"]} maxLength={100} />
+              <Field label="WhatsApp / phone" name="phone" type="tel" error={errors["phone"]} maxLength={20} />
+              <label className="grid gap-2 text-sm font-bold">Business category<select name="category" defaultValue="" className="h-12 rounded-md border border-input bg-card px-3 text-foreground outline-none focus:border-primary"><option value="" disabled>Select a category</option><option>Retail</option><option>Food & hospitality</option><option>Professional services</option><option>Beauty & wellness</option><option>Education</option><option>Real estate</option><option>Other</option></select>{errors["category"] && <span className="text-xs text-destructive">{errors["category"]}</span>}</label>
+              <label className="grid gap-2 text-sm font-bold md:col-span-2">What digital challenge should we help solve?<textarea name="challenge" maxLength={1000} rows={5} className="rounded-md border border-input bg-card p-3 text-foreground outline-none focus:border-primary" placeholder="Tell us what is not working today…" />{errors["challenge"] && <span className="text-xs text-destructive">{errors["challenge"]}</span>}</label>
               <Button type="submit" className="mt-2 md:col-span-2">Request my assessment <ArrowRight size={17} /></Button>
               <p className="text-xs leading-5 text-muted-foreground md:col-span-2">Submitting this preview shows the confirmation experience; information is not stored yet.</p>
             </form>}
@@ -150,6 +150,6 @@ function HomePage() {
   );
 }
 
-function Field({ label, name, error, type = "text", maxLength }: { label: string; name: string; error?: string; type?: string; maxLength: number }) {
+function Field({ label, name, error, type = "text", maxLength }: { label: string; name: string; error: string | undefined; type?: string; maxLength: number }) {
   return <label className="grid gap-2 text-sm font-bold">{label}<input name={name} type={type} maxLength={maxLength} className="h-12 rounded-md border border-input bg-card px-3 text-foreground outline-none focus:border-primary" />{error && <span className="text-xs text-destructive">{error}</span>}</label>;
 }
