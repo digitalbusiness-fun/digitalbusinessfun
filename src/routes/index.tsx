@@ -93,12 +93,12 @@ function HomePage() {
           <div className="min-w-0"><Logo /></div>
           <nav aria-label="Main navigation" className="hidden items-center gap-8 md:flex">
             {["Services", "100 Businesses", "Process"].map((item) => <a key={item} href={`#${item.toLowerCase().replace(" ", "-")}`} className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">{item}</a>)}
-            <Button variant="ghost" className="size-11 px-0" onClick={toggleTheme} aria-label={darkTheme ? "Use light theme" : "Use dark theme"} title={darkTheme ? "Use light theme" : "Use dark theme"}>{darkTheme ? <Sun size={19} /> : <Moon size={19} />}</Button>
+            <Button variant="ghost" className="size-12 px-0!" onClick={toggleTheme} aria-label={darkTheme ? "Use light theme" : "Use dark theme"} title={darkTheme ? "Use light theme" : "Use dark theme"}>{darkTheme ? <Sun size={19} /> : <Moon size={19} />}</Button>
             <Button asChild><a href="#apply">Apply now <ArrowRight size={16} /></a></Button>
           </nav>
           <div className="flex shrink-0 items-center md:hidden">
-            <Button variant="ghost" className="size-11 px-0" onClick={toggleTheme} aria-label={darkTheme ? "Use light theme" : "Use dark theme"}>{darkTheme ? <Sun size={19} /> : <Moon size={19} />}</Button>
-            <Button variant="ghost" className="size-11 px-0" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen}>{menuOpen ? <X size={22} /> : <Menu size={22} />}</Button>
+            <Button variant="ghost" className="size-12 px-0!" onClick={toggleTheme} aria-label={darkTheme ? "Use light theme" : "Use dark theme"}>{darkTheme ? <Sun size={19} /> : <Moon size={19} />}</Button>
+            <Button variant="ghost" className="size-12 px-0!" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen}>{menuOpen ? <X size={22} /> : <Menu size={22} />}</Button>
           </div>
         </div>
         {menuOpen && <nav className="border-t border-border bg-background p-5 md:hidden">{["Services", "100 Businesses", "Process", "Apply"].map((item) => <a onClick={() => setMenuOpen(false)} key={item} href={`#${item.toLowerCase().replace(" ", "-")}`} className="block border-b border-border py-4 font-bold">{item}</a>)}</nav>}
