@@ -2,18 +2,19 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   ArrowDown,
   ArrowRight,
-  Bot,
   Check,
   ChevronRight,
   CircleDot,
   Globe2,
   Menu,
+  Moon,
   Sparkles,
+  Sun,
   TrendingUp,
   X,
   Zap,
 } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import heroImage from "@/assets/digital-infrastructure-hero.jpg";
 import { Button } from "@/components/Button";
 
@@ -48,13 +49,26 @@ const process = [
 ];
 
 function Logo() {
-  return <a href="#top" className="inline-flex items-center gap-2 font-extrabold text-foreground"><span className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">D</span><span>DigitalBusiness<span className="text-primary">.fun</span></span></a>;
+  return <a href="#top" aria-label="DigitalBusiness.fun — back to top" className="inline-flex min-w-0 items-center gap-2 font-extrabold text-foreground"><img src="/favicon.svg" alt="" className="size-9 shrink-0" /><span className="truncate">DigitalBusiness<span className="text-primary">.fun</span></span></a>;
 }
 
 function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [darkTheme, setDarkTheme] = useState<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    setDarkTheme(document.documentElement.classList.contains("dark"));
+  }, []);
+
+  function toggleTheme() {
+    const nextTheme = !document.documentElement.classList.contains("dark");
+    document.documentElement.classList.toggle("dark", nextTheme);
+    document.documentElement.style.colorScheme = nextTheme ? "dark" : "light";
+    localStorage.setItem("theme", nextTheme ? "dark" : "light");
+    setDarkTheme(nextTheme);
+  }
 
   function submitApplication(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -75,20 +89,24 @@ function HomePage() {
   return (
     <main id="top" className="bg-background text-foreground">
       <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/85 backdrop-blur-xl">
-        <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 lg:px-8">
-          <Logo />
+        <div className="mx-auto grid h-18 max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 sm:px-5 lg:px-8">
+          <div className="min-w-0"><Logo /></div>
           <nav aria-label="Main navigation" className="hidden items-center gap-8 md:flex">
             {["Services", "100 Businesses", "Process"].map((item) => <a key={item} href={`#${item.toLowerCase().replace(" ", "-")}`} className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">{item}</a>)}
+            <Button variant="ghost" className="size-12 px-0!" onClick={toggleTheme} aria-label={darkTheme ? "Use light theme" : "Use dark theme"} title={darkTheme ? "Use light theme" : "Use dark theme"}>{darkTheme ? <Sun size={19} /> : <Moon size={19} />}</Button>
             <Button asChild><a href="#apply">Apply now <ArrowRight size={16} /></a></Button>
           </nav>
-          <Button variant="ghost" className="size-11 px-0 md:hidden" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? "Close menu" : "Open menu"}>{menuOpen ? <X /> : <Menu />}</Button>
+          <div className="flex shrink-0 items-center md:hidden">
+            <Button variant="ghost" className="size-12 px-0!" onClick={toggleTheme} aria-label={darkTheme ? "Use light theme" : "Use dark theme"}>{darkTheme ? <Sun size={19} /> : <Moon size={19} />}</Button>
+            <Button variant="ghost" className="size-12 px-0!" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen}>{menuOpen ? <X size={22} /> : <Menu size={22} />}</Button>
+          </div>
         </div>
         {menuOpen && <nav className="border-t border-border bg-background p-5 md:hidden">{["Services", "100 Businesses", "Process", "Apply"].map((item) => <a onClick={() => setMenuOpen(false)} key={item} href={`#${item.toLowerCase().replace(" ", "-")}`} className="block border-b border-border py-4 font-bold">{item}</a>)}</nav>}
       </header>
 
       <section className="relative flex min-h-[92svh] items-end overflow-hidden border-b border-border pt-28">
         <img src={heroImage} alt="Connected digital systems flowing through a business journey" width={1600} height={1000} className="absolute inset-0 size-full object-cover object-center" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/20" />
+        <div className="absolute inset-0 bg-linear-to-r from-background via-background/90 to-background/20" />
         <div className="absolute inset-0 site-grid opacity-25" />
         <div className="relative mx-auto grid w-full max-w-7xl gap-12 px-5 pb-16 lg:grid-cols-[1.45fr_.55fr] lg:px-8 lg:pb-20">
           <div className="max-w-4xl enter-up">
@@ -146,6 +164,16 @@ function HomePage() {
       </section>
 
       <footer className="border-t border-border"><div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-10 md:flex-row md:items-center md:justify-between lg:px-8"><Logo /><p className="text-sm text-muted-foreground">Build the digital infrastructure around your customer journey.</p><a href="#top" className="text-sm font-bold text-primary">Back to top ↑</a></div></footer>
+      <a
+        href="https://wa.me/2348105519705?text=My%20Business%20needs%20a%20website%20that%20..."
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Chat with us on WhatsApp"
+        title="Chat with us on WhatsApp"
+        className="fixed bottom-5 right-5 z-40 grid size-14 place-items-center rounded-full bg-whatsapp text-whatsapp-foreground shadow-lg transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:bottom-7 sm:right-7"
+      >
+        <svg aria-hidden="true" viewBox="0 0 32 32" className="size-7 fill-current"><path d="M16.04 3A12.93 12.93 0 0 0 5.08 22.8L3.1 30l7.37-1.93A12.98 12.98 0 1 0 16.04 3Zm0 23.77c-1.9 0-3.77-.5-5.4-1.45l-.39-.23-4.37 1.15 1.17-4.26-.25-.4a10.75 10.75 0 1 1 9.24 5.19Zm5.9-8.04c-.32-.16-1.91-.94-2.2-1.05-.3-.11-.51-.16-.73.16-.21.33-.83 1.05-1.02 1.27-.19.21-.38.24-.7.08-.33-.16-1.37-.5-2.61-1.61a9.8 9.8 0 0 1-1.81-2.26c-.19-.32-.02-.5.14-.66.15-.14.32-.38.49-.57.16-.19.21-.32.32-.54.11-.21.06-.4-.02-.56-.08-.17-.73-1.76-1-2.4-.26-.64-.53-.55-.73-.56h-.62c-.21 0-.56.08-.86.4-.29.33-1.13 1.11-1.13 2.7 0 1.6 1.16 3.14 1.32 3.36.16.21 2.28 3.48 5.53 4.88.77.33 1.37.53 1.84.68.77.24 1.48.21 2.03.13.62-.09 1.91-.79 2.18-1.54.27-.76.27-1.41.19-1.54-.08-.14-.3-.22-.62-.38Z" /></svg>
+      </a>
     </main>
   );
 }
