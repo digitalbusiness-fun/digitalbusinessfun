@@ -13,4 +13,3 @@
 
 - Keep the V1 marketing experience as one scrolling route at `/`; the approved product specification explicitly requires single-page navigation.
 - Keep application submission presentation-only until persistent storage is connected; this avoids implying that business details were saved.
-- Persist the light/dark theme choice in browser storage and apply it before page rendering to prevent a visible theme flash.
