@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OnboardingTokenRouteImport } from './routes/onboarding.$token'
 import { Route as PaymentCallbackRouteImport } from './routes/payment.callback'
 import { Route as ApiPublicAiChatRouteImport } from './routes/api/public/ai-chat'
 import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
@@ -17,6 +18,11 @@ import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/publi
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingTokenRoute = OnboardingTokenRouteImport.update({
+  id: '/onboarding/$token',
+  path: '/onboarding/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PaymentCallbackRoute = PaymentCallbackRouteImport.update({
@@ -38,12 +44,14 @@ const ApiPublicPaystackWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/onboarding/$token': typeof OnboardingTokenRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/api/public/ai-chat': typeof ApiPublicAiChatRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/onboarding/$token': typeof OnboardingTokenRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/api/public/ai-chat': typeof ApiPublicAiChatRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
@@ -51,6 +59,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/onboarding/$token': typeof OnboardingTokenRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/api/public/ai-chat': typeof ApiPublicAiChatRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
@@ -59,18 +68,21 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/onboarding/$token'
     | '/payment/callback'
     | '/api/public/ai-chat'
     | '/api/public/paystack-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/onboarding/$token'
     | '/payment/callback'
     | '/api/public/ai-chat'
     | '/api/public/paystack-webhook'
   id:
     | '__root__'
     | '/'
+    | '/onboarding/$token'
     | '/payment/callback'
     | '/api/public/ai-chat'
     | '/api/public/paystack-webhook'
@@ -78,6 +90,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  OnboardingTokenRoute: typeof OnboardingTokenRoute
   PaymentCallbackRoute: typeof PaymentCallbackRoute
   ApiPublicAiChatRoute: typeof ApiPublicAiChatRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
@@ -90,6 +103,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding/$token': {
+      id: '/onboarding/$token'
+      path: '/onboarding/$token'
+      fullPath: '/onboarding/$token'
+      preLoaderRoute: typeof OnboardingTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/payment/callback': {
@@ -118,6 +138,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  OnboardingTokenRoute: OnboardingTokenRoute,
   PaymentCallbackRoute: PaymentCallbackRoute,
   ApiPublicAiChatRoute: ApiPublicAiChatRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
