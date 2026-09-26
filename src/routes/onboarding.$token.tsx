@@ -54,7 +54,7 @@ function Wizard({ token, initial }: { token: string; initial: NonNullable<Awaite
   const total = initial.isCampaign ? 6 : 5;
   const [values, setValues] = useState<Values[]>(() =>
     DEFAULTS.map((d, i) => {
-      const saved = { ...d, ...(initial.steps[i] ?? {}) };
+      const saved = { ...d, ...((initial.steps[i] as object | null) ?? {}) };
       if (i === 1) { saved.email ||= initial.email; saved.phone ||= initial.phone; }
       if (i === 0) saved.name ||= initial.businessName;
       return saved;
@@ -186,7 +186,7 @@ function Text({ label, k, v, set, errors, multiline, type = "text", placeholder 
   );
 }
 
-function Choice({ label, options, value, onChange, error }: { label: string; options: readonly string[]; value: string; onChange: (v: string) => void; error?: string }) {
+function Choice({ label, options, value, onChange, error }: { label: string; options: readonly string[]; value: string; onChange: (v: string) => void; error?: string | undefined }) {
   return (
     <div className="grid gap-2 text-sm font-bold">{label}
       <div className="grid gap-2 sm:grid-cols-2">{options.map((o) => <button key={o} type="button" onClick={() => onChange(o)} className={`rounded-md border px-4 py-3 text-left text-sm ${value === o ? "border-primary bg-primary/10" : "border-border"}`}>{o}</button>)}</div>
