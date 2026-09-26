@@ -14,6 +14,9 @@ import {
   Zap,
 } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getCampaignSlots, startApplication } from "@/lib/applications.functions";
 import heroImage from "@/assets/digital-infrastructure-hero.jpg";
 import { Button } from "@/components/Button";
 
@@ -53,22 +56,35 @@ function Logo() {
 
 function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const fetchSlots = useServerFn(getCampaignSlots);
+  const start = useServerFn(startApplication);
+  const { data: slots } = useQuery({ queryKey: ["campaign-slots"], queryFn: () => fetchSlots() });
+  const used = slots?.used ?? 0;
+  const campaignOpen = used < 100;
 
-  function submitApplication(event: FormEvent<HTMLFormElement>) {
+  async function submitApplication(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const get = (f: string) => String(data.get(f) ?? "").trim();
     const nextErrors: Record<string, string> = {};
-    for (const field of ["business", "name", "phone", "category", "challenge"]) {
-      if (!String(data.get(field) ?? "").trim()) nextErrors[field] = "This field is required.";
+    for (const field of ["business", "name", "email", "phone", "category", "challenge"]) {
+      if (!get(field)) nextErrors[field] = "This field is required.";
     }
-    const phone = String(data.get("phone") ?? "").trim();
-    if (phone && !/^[+0-9()\-\s]{7,20}$/.test(phone)) nextErrors["phone"] = "Enter a valid phone number.";
+    if (get("phone") && !/^[+0-9()\-\s]{7,20}$/.test(get("phone"))) nextErrors["phone"] = "Enter a valid phone number.";
+    if (get("email") && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(get("email"))) nextErrors["email"] = "Enter a valid email address.";
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length === 0) {
-      setSubmitted(true);
-      event.currentTarget.reset();
+    setFormError("");
+    if (Object.keys(nextErrors).length) return;
+    setSubmitting(true);
+    try {
+      const res = await start({ data: { business: get("business"), name: get("name"), email: get("email"), phone: get("phone"), category: get("category"), challenge: get("challenge"), origin: window.location.origin } });
+      window.location.href = res.authorizationUrl;
+    } catch {
+      setFormError("Something went wrong starting your payment. Please try again.");
+      setSubmitting(false);
     }
   }
 
@@ -119,7 +135,7 @@ function HomePage() {
       <section id="100-businesses" className="border-y border-border bg-card">
         <div className="mx-auto grid max-w-7xl gap-16 px-5 py-24 lg:grid-cols-[.85fr_1.15fr] lg:px-8 lg:py-32">
           <div><p className="text-sm font-bold uppercase text-primary">100 Businesses. One Digital Movement.</p><h2 className="mt-5 text-balance text-5xl font-extrabold leading-tight md:text-7xl">Get your business online for <span className="text-primary">₦49,999.</span></h2><p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground">We are beginning with 100 real businesses—building a professional website for each, then creating a clear path toward automation and growth.</p><Button asChild className="mt-8"><a href="#apply">Request your place <ArrowRight size={17} /></a></Button></div>
-          <div className="flex flex-col justify-between rounded-lg border border-border bg-background p-7 md:p-10"><div className="flex items-end justify-between"><div><p className="text-xs font-bold uppercase text-muted-foreground">Campaign progress</p><p className="mt-3 text-6xl font-extrabold">0 <span className="text-2xl text-muted-foreground">/ 100</span></p></div><CircleDot className="text-primary" size={30} /></div><div className="mt-8 h-2 overflow-hidden rounded-full bg-secondary"><div className="h-full w-0 bg-primary" /></div><p className="mt-4 text-sm text-muted-foreground">No fabricated progress. The counter updates as businesses officially join.</p><div className="mt-12 grid grid-cols-5 gap-2">{["Apply", "Audit", "Build", "Automate", "Grow"].map((step, index) => <div key={step} className="text-center"><div className="mx-auto mb-3 grid size-8 place-items-center rounded-full border border-border bg-card text-xs font-bold">{index + 1}</div><span className="text-[10px] font-bold uppercase text-muted-foreground sm:text-xs">{step}</span></div>)}</div></div>
+          <div className="flex flex-col justify-between rounded-lg border border-border bg-background p-7 md:p-10"><div className="flex items-end justify-between"><div><p className="text-xs font-bold uppercase text-muted-foreground">Campaign progress</p><p className="mt-3 text-6xl font-extrabold">{used} <span className="text-2xl text-muted-foreground">/ 100</span></p></div><CircleDot className="text-primary" size={30} /></div><div className="mt-8 h-2 overflow-hidden rounded-full bg-secondary"><div className="h-full bg-primary transition-all" style={{ width: `${Math.min(used, 100)}%` }} /></div><p className="mt-4 text-sm text-muted-foreground">{campaignOpen ? `${100 - used} campaign places left at ₦49,999. Counts only businesses that have paid.` : "All 100 campaign places are taken. New websites are ₦149,999."}</p><div className="mt-12 grid grid-cols-5 gap-2">{["Apply", "Audit", "Build", "Automate", "Grow"].map((step, index) => <div key={step} className="text-center"><div className="mx-auto mb-3 grid size-8 place-items-center rounded-full border border-border bg-card text-xs font-bold">{index + 1}</div><span className="text-[10px] font-bold uppercase text-muted-foreground sm:text-xs">{step}</span></div>)}</div></div>
         </div>
       </section>
 
@@ -132,15 +148,18 @@ function HomePage() {
         <div className="mx-auto grid max-w-7xl gap-14 px-5 py-24 lg:grid-cols-[.8fr_1.2fr] lg:px-8 lg:py-32">
           <div><p className="text-sm font-bold uppercase text-primary">Apply for digital transformation</p><h2 className="mt-5 text-balance text-5xl font-extrabold leading-tight md:text-6xl">Is your business ready for its next version?</h2><p className="mt-6 max-w-md leading-7 text-muted-foreground">Tell us where you are and what you need. We’ll use your answers to understand whether the ₦49,999 campaign offer is the right starting point.</p><div className="mt-10 space-y-4 text-sm text-muted-foreground">{["Professional website built around your business", "A clear route to automation and growth", "Reserved for the first 100 qualifying requests"].map(item => <p key={item} className="flex gap-3"><Check className="shrink-0 text-primary" size={18} />{item}</p>)}</div></div>
           <div className="rounded-lg border border-border bg-background p-6 md:p-10">
-            {submitted ? <div className="grid min-h-96 place-items-center text-center"><div><div className="mx-auto grid size-14 place-items-center rounded-full bg-primary text-primary-foreground"><Check /></div><h3 className="mt-6 text-3xl font-extrabold">Application captured.</h3><p className="mx-auto mt-3 max-w-md leading-7 text-muted-foreground">This preview does not send or save your details yet. The application journey is ready to connect when secure storage is enabled.</p><Button className="mt-7" variant="outline" onClick={() => setSubmitted(false)}>Submit another</Button></div></div> : <form onSubmit={submitApplication} noValidate className="grid gap-5 md:grid-cols-2">
+            <form onSubmit={submitApplication} noValidate className="grid gap-5 md:grid-cols-2">
+              <div className="flex items-end justify-between rounded-md border border-primary/30 bg-card p-4 md:col-span-2"><div><p className="text-xs font-bold uppercase text-muted-foreground">Professional business website</p><p className="mt-1 text-sm text-muted-foreground">{campaignOpen ? "Campaign rate — first 100 businesses" : "Standard rate"}</p></div><p className="text-3xl font-extrabold text-primary">{campaignOpen ? "₦49,999" : "₦149,999"}</p></div>
               <Field label="Business name" name="business" error={errors["business"]} maxLength={100} />
               <Field label="Owner / contact name" name="name" error={errors["name"]} maxLength={100} />
+              <Field label="Email" name="email" type="email" error={errors["email"]} maxLength={255} />
               <Field label="WhatsApp / phone" name="phone" type="tel" error={errors["phone"]} maxLength={20} />
-              <label className="grid gap-2 text-sm font-bold">Business category<select name="category" defaultValue="" className="h-12 rounded-md border border-input bg-card px-3 text-foreground outline-none focus:border-primary"><option value="" disabled>Select a category</option><option>Retail</option><option>Food & hospitality</option><option>Professional services</option><option>Beauty & wellness</option><option>Education</option><option>Real estate</option><option>Other</option></select>{errors["category"] && <span className="text-xs text-destructive">{errors["category"]}</span>}</label>
+              <label className="grid gap-2 text-sm font-bold md:col-span-2">Business category<select name="category" defaultValue="" className="h-12 rounded-md border border-input bg-card px-3 text-foreground outline-none focus:border-primary"><option value="" disabled>Select a category</option><option>Retail</option><option>Food & hospitality</option><option>Professional services</option><option>Beauty & wellness</option><option>Education</option><option>Real estate</option><option>Other</option></select>{errors["category"] && <span className="text-xs text-destructive">{errors["category"]}</span>}</label>
               <label className="grid gap-2 text-sm font-bold md:col-span-2">What digital challenge should we help solve?<textarea name="challenge" maxLength={1000} rows={5} className="rounded-md border border-input bg-card p-3 text-foreground outline-none focus:border-primary" placeholder="Tell us what is not working today…" />{errors["challenge"] && <span className="text-xs text-destructive">{errors["challenge"]}</span>}</label>
-              <Button type="submit" className="mt-2 md:col-span-2">Request my assessment <ArrowRight size={17} /></Button>
-              <p className="text-xs leading-5 text-muted-foreground md:col-span-2">Submitting this preview shows the confirmation experience; information is not stored yet.</p>
-            </form>}
+              {formError && <p className="text-sm text-destructive md:col-span-2">{formError}</p>}
+              <Button type="submit" disabled={submitting} className="mt-2 md:col-span-2">{submitting ? "Starting secure payment…" : "Continue to payment"} <ArrowRight size={17} /></Button>
+              <p className="text-xs leading-5 text-muted-foreground md:col-span-2">Payment is processed securely by Paystack (card, bank transfer, USSD). Your final price is confirmed on the payment page.</p>
+            </form>
           </div>
         </div>
       </section>

@@ -12,4 +12,6 @@
 ## Project architecture
 
 - Keep the V1 marketing experience as one scrolling route at `/`; the approved product specification explicitly requires single-page navigation.
-- Keep application submission presentation-only until persistent storage is connected; this avoids implying that business details were saved.
+- Applications and payments are written only via server functions using security-definer DB functions (create_application / confirm_payment); tables have no public access, so pricing and slot logic can't be bypassed.
+- Paystack uses redirect checkout; payment is confirmed only by server-side verify or the signed webhook at /api/public/paystack-webhook, never by the browser callback.
+- /payment/callback is a utility route outside the single-page marketing experience.

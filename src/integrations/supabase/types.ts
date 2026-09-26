@@ -14,13 +14,141 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      applications: {
+        Row: {
+          amount_due: number
+          business_name: string
+          category: string
+          challenge: string
+          contact_name: string
+          created_at: string
+          email: string
+          id: string
+          needs_review: boolean
+          package_selected: string
+          paid_at: string | null
+          payment_status: string
+          paystack_reference: string | null
+          phone: string
+          pricing_tier: string
+          slot_reserved_until: string | null
+          status: string
+        }
+        Insert: {
+          amount_due: number
+          business_name: string
+          category: string
+          challenge: string
+          contact_name: string
+          created_at?: string
+          email: string
+          id?: string
+          needs_review?: boolean
+          package_selected?: string
+          paid_at?: string | null
+          payment_status?: string
+          paystack_reference?: string | null
+          phone: string
+          pricing_tier: string
+          slot_reserved_until?: string | null
+          status?: string
+        }
+        Update: {
+          amount_due?: number
+          business_name?: string
+          category?: string
+          challenge?: string
+          contact_name?: string
+          created_at?: string
+          email?: string
+          id?: string
+          needs_review?: boolean
+          package_selected?: string
+          paid_at?: string | null
+          payment_status?: string
+          paystack_reference?: string | null
+          phone?: string
+          pricing_tier?: string
+          slot_reserved_until?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          channel: string | null
+          created_at: string
+          currency: string
+          id: string
+          lead_id: string
+          reference: string
+          status: string
+          webhook_verified: boolean
+        }
+        Insert: {
+          amount: number
+          channel?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          lead_id: string
+          reference: string
+          status?: string
+          webhook_verified?: boolean
+        }
+        Update: {
+          amount?: number
+          channel?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          lead_id?: string
+          reference?: string
+          status?: string
+          webhook_verified?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      campaign_slots_used: { Args: never; Returns: number }
+      confirm_payment: {
+        Args: {
+          _amount: number
+          _channel: string
+          _from_webhook: boolean
+          _reference: string
+        }
+        Returns: string
+      }
+      create_application: {
+        Args: {
+          _business: string
+          _category: string
+          _challenge: string
+          _contact: string
+          _email: string
+          _phone: string
+          _reference: string
+        }
+        Returns: {
+          amount_due: number
+          id: string
+          pricing_tier: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
