@@ -91,5 +91,7 @@ export const verifyPayment = createServerFn({ method: "POST" })
       _from_webhook: false,
     });
     if (error || (result !== "paid" && result !== "already_paid")) return { status: "failed" as const };
-    return { status: "paid" as const };
+    const { onboardingTokenForReference } = await import("./onboarding.functions");
+    const onboardingToken = await onboardingTokenForReference(data.reference);
+    return { status: "paid" as const, onboardingToken };
   });

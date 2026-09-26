@@ -45,7 +45,13 @@ function PaymentCallback() {
           <>
             <div className="mx-auto grid size-14 place-items-center rounded-full bg-primary text-primary-foreground"><Check /></div>
             <h1 className="mt-6 text-3xl font-extrabold">Payment confirmed.</h1>
-            <p className="mt-3 leading-7 text-muted-foreground">Welcome to 100 Businesses Online. We'll contact you on WhatsApp to begin building your website.</p>
+            <p className="mt-3 leading-7 text-muted-foreground">Welcome to 100 Businesses Online. Next, tell us about your business so we can build a website that fits. It takes about 10 minutes and saves as you go.</p>
+            {data && "onboardingToken" in data && data.onboardingToken && (
+              <>
+                <Button asChild className="mt-8"><Link to="/onboarding/$token" params={{ token: data.onboardingToken }}>Start onboarding</Link></Button>
+                <p className="mt-3 text-xs text-muted-foreground">Bookmark that page — it's your personal link to come back and finish later.</p>
+              </>
+            )}
           </>
         )}
         {(status === "failed" || status === "pending") && (
