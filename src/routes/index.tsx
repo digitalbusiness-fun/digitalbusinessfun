@@ -8,6 +8,7 @@ import {
   CircleDot,
   Globe2,
   Menu,
+  MessageCircle,
   Sparkles,
   TrendingUp,
   X,
@@ -19,6 +20,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { getCampaignSlots, startApplication } from "@/lib/applications.functions";
 import heroImage from "@/assets/digital-infrastructure-hero.jpg";
 import { Button } from "@/components/Button";
+import { AIChat } from "@/components/AIChat";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { customRequestMessage, whatsappLink } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -56,6 +60,8 @@ function Logo() {
 
 function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [businessName, setBusinessName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -150,7 +156,7 @@ function HomePage() {
           <div className="rounded-lg border border-border bg-background p-6 md:p-10">
             <form onSubmit={submitApplication} noValidate className="grid gap-5 md:grid-cols-2">
               <div className="flex items-end justify-between rounded-md border border-primary/30 bg-card p-4 md:col-span-2"><div><p className="text-xs font-bold uppercase text-muted-foreground">Professional business website</p><p className="mt-1 text-sm text-muted-foreground">{campaignOpen ? "Campaign rate — first 100 businesses" : "Standard rate"}</p></div><p className="text-3xl font-extrabold text-primary">{campaignOpen ? "₦49,999" : "₦149,999"}</p></div>
-              <Field label="Business name" name="business" error={errors["business"]} maxLength={100} />
+              <Field label="Business name" name="business" error={errors["business"]} maxLength={100} onChange={setBusinessName} />
               <Field label="Owner / contact name" name="name" error={errors["name"]} maxLength={100} />
               <Field label="Email" name="email" type="email" error={errors["email"]} maxLength={255} />
               <Field label="WhatsApp / phone" name="phone" type="tel" error={errors["phone"]} maxLength={20} />
@@ -159,16 +165,27 @@ function HomePage() {
               {formError && <p className="text-sm text-destructive md:col-span-2">{formError}</p>}
               <Button type="submit" disabled={submitting} className="mt-2 md:col-span-2">{submitting ? "Starting secure payment…" : "Continue to payment"} <ArrowRight size={17} /></Button>
               <p className="text-xs leading-5 text-muted-foreground md:col-span-2">Payment is processed securely by Paystack (card, bank transfer, USSD). Your final price is confirmed on the payment page.</p>
+              <div className="grid gap-3 border-t border-border pt-5 sm:grid-cols-2 md:col-span-2">
+                <button type="button" onClick={() => setChatOpen(true)} className="flex items-start gap-3 rounded-md border border-border p-4 text-left transition-colors hover:border-primary"><Bot className="shrink-0 text-primary" size={20} /><span><span className="block text-sm font-bold">Not sure it fits?</span><span className="text-xs text-muted-foreground">Chat with our AI assistant</span></span></button>
+                <a href={whatsappLink(customRequestMessage(businessName))} onClick={() => undefined} target="_blank" rel="noreferrer" className="flex items-start gap-3 rounded-md border border-border p-4 transition-colors hover:border-primary"><MessageCircle className="shrink-0 text-primary" size={20} /><span><span className="block text-sm font-bold">Have a custom request?</span><span className="text-xs text-muted-foreground">Chat with us directly on WhatsApp</span></span></a>
+              </div>
             </form>
           </div>
         </div>
       </section>
 
-      <footer className="border-t border-border"><div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-10 md:flex-row md:items-center md:justify-between lg:px-8"><Logo /><p className="text-sm text-muted-foreground">Build the digital infrastructure around your customer journey.</p><a href="#top" className="text-sm font-bold text-primary">Back to top ↑</a></div></footer>
+      <Sheet open={chatOpen} onOpenChange={setChatOpen}>
+        <SheetContent className="flex w-full flex-col bg-background sm:max-w-lg">
+          <SheetTitle className="sr-only">AI website guide</SheetTitle>
+          {chatOpen && <AIChat campaignOpen={campaignOpen} onProceed={() => { setChatOpen(false); document.getElementById("apply")?.scrollIntoView({ behavior: "smooth" }); }} />}
+        </SheetContent>
+      </Sheet>
+
+      <footer className="border-t border-border"><div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-10 md:flex-row md:items-center md:justify-between lg:px-8"><Logo /><p className="text-sm text-muted-foreground">Build the digital infrastructure around your customer journey.</p><div className="flex items-center gap-6"><a href={whatsappLink(customRequestMessage())} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-foreground hover:text-primary"><MessageCircle size={16} /> WhatsApp us</a><a href="#top" className="text-sm font-bold text-primary">Back to top ↑</a></div></div></footer>
     </main>
   );
 }
 
-function Field({ label, name, error, type = "text", maxLength }: { label: string; name: string; error: string | undefined; type?: string; maxLength: number }) {
-  return <label className="grid gap-2 text-sm font-bold">{label}<input name={name} type={type} maxLength={maxLength} className="h-12 rounded-md border border-input bg-card px-3 text-foreground outline-none focus:border-primary" />{error && <span className="text-xs text-destructive">{error}</span>}</label>;
+function Field({ label, name, error, type = "text", maxLength, onChange }: { label: string; name: string; error: string | undefined; type?: string; maxLength: number; onChange?: (v: string) => void }) {
+  return <label className="grid gap-2 text-sm font-bold">{label}<input name={name} type={type} maxLength={maxLength} onChange={onChange ? (e) => onChange(e.target.value) : undefined} className="h-12 rounded-md border border-input bg-card px-3 text-foreground outline-none focus:border-primary" />{error && <span className="text-xs text-destructive">{error}</span>}</label>;
 }

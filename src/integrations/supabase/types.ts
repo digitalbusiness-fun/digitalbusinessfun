@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_chat_sessions: {
+        Row: {
+          created_at: string
+          extracted_summary: Json | null
+          id: string
+          lead_id: string | null
+          messages: Json
+          provider: string
+          recommended_tier: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          extracted_summary?: Json | null
+          id: string
+          lead_id?: string | null
+          messages?: Json
+          provider?: string
+          recommended_tier?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          extracted_summary?: Json | null
+          id?: string
+          lead_id?: string | null
+          messages?: Json
+          provider?: string
+          recommended_tier?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_chat_sessions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       applications: {
         Row: {
           amount_due: number
@@ -73,6 +117,65 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      onboarding_intake: {
+        Row: {
+          access_token: string
+          business_identity: Json
+          completion_status: string
+          consent_case_study: boolean
+          consent_public_media: boolean
+          contact_channels: Json
+          content_assets: Json
+          created_at: string
+          goals_audience: Json
+          id: string
+          lead_id: string
+          steps_completed: number[]
+          structure_preferences: Json
+          updated_at: string
+        }
+        Insert: {
+          access_token?: string
+          business_identity?: Json
+          completion_status?: string
+          consent_case_study?: boolean
+          consent_public_media?: boolean
+          contact_channels?: Json
+          content_assets?: Json
+          created_at?: string
+          goals_audience?: Json
+          id?: string
+          lead_id: string
+          steps_completed?: number[]
+          structure_preferences?: Json
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          business_identity?: Json
+          completion_status?: string
+          consent_case_study?: boolean
+          consent_public_media?: boolean
+          contact_channels?: Json
+          content_assets?: Json
+          created_at?: string
+          goals_audience?: Json
+          id?: string
+          lead_id?: string
+          steps_completed?: number[]
+          structure_preferences?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_intake_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: true
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payments: {
         Row: {

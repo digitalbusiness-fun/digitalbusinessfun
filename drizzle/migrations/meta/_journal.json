@@ -8,6 +8,13 @@
       "when": 1790440288443,
       "tag": "0000_applications_payments",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790442777032,
+      "tag": "0001_onboarding_and_ai_chat",
+      "breakpoints": true
     }
   ]
 }
