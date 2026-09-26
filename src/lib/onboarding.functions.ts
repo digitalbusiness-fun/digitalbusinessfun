@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { stepSchemas } from "./onboarding-schema";
+import type { Json, TablesUpdate } from "@/integrations/supabase/types";
 
 const tokenSchema = z.string().regex(/^[a-f0-9]{48}$/);
 const COLUMNS = ["business_identity", "contact_channels", "goals_audience", "content_assets", "structure_preferences"] as const;
@@ -32,7 +33,7 @@ export const getOnboarding = createServerFn({ method: "GET" })
       isCampaign: app.pricing_tier === "campaign",
       email: app.email,
       phone: app.phone,
-      steps: [row.business_identity, row.contact_channels, row.goals_audience, row.content_assets, row.structure_preferences, { caseStudy: row.consent_case_study, publicMedia: row.consent_public_media }] as Record<string, unknown>[],
+      steps: [row.business_identity, row.contact_channels, row.goals_audience, row.content_assets, row.structure_preferences, { caseStudy: row.consent_case_study, publicMedia: row.consent_public_media }] as Json[],
       stepsCompleted: row.steps_completed,
       status: row.completion_status,
     };
@@ -55,7 +56,7 @@ export const saveOnboardingStep = createServerFn({ method: "POST" })
       if (typeof data.values !== "object" || data.values === null || JSON.stringify(data.values).length > 20000) throw new Error("Invalid draft");
       values = data.values as Record<string, unknown>;
     } else {
-      const parsed = stepSchemas[data.step].safeParse(data.values);
+      const parsed = stepSchemas[data.step]!.safeParse(data.values);
       if (!parsed.success) throw new Error("Please check the highlighted fields");
       values = parsed.data as Record<string, unknown>;
     }
@@ -65,8 +66,8 @@ export const saveOnboardingStep = createServerFn({ method: "POST" })
     const stepsCompleted = [...completed].filter((s) => s < total).sort();
     const status = stepsCompleted.length >= total ? "COMPLETE" : "IN_PROGRESS";
 
-    const update: Record<string, unknown> = { steps_completed: stepsCompleted, completion_status: status, updated_at: new Date().toISOString() };
-    if (data.step < 5) update[COLUMNS[data.step]] = values;
+    const update: TablesUpdate<"onboarding_intake"> = { steps_completed: stepsCompleted, completion_status: status, updated_at: new Date().toISOString() };
+    if (data.step < 5) update[COLUMNS[data.step]!] = values as Json;
     else {
       update["consent_case_study"] = !!values["caseStudy"];
       update["consent_public_media"] = !!values["publicMedia"];

@@ -23,7 +23,8 @@ export const Route = createFileRoute("/onboarding/$token")({
   component: OnboardingPage,
 });
 
-type Values = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Values = any;
 
 const DEFAULTS: Values[] = [
   { name: "", cac: "", category: "", tagline: "", about: "", years: "" },
@@ -79,7 +80,7 @@ function Wizard({ token, initial }: { token: string; initial: NonNullable<Awaite
   const set = (patch: Values) => { dirty.current = true; setValues((v) => v.map((s, i) => (i === step ? { ...s, ...patch } : s))); };
 
   async function next() {
-    const parsed = stepSchemas[step].safeParse(values[step]);
+    const parsed = stepSchemas[step]!.safeParse(values[step]);
     if (!parsed.success) {
       const e: Record<string, string> = {};
       for (const issue of parsed.error.issues) e[issue.path.join(".")] ??= issue.message;
